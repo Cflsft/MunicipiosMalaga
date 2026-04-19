@@ -280,6 +280,48 @@ input[type="text"], input[type="number"] {
     font-size: 1rem;
 }
 
+.review-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    width: 100%;
+}
+
+.municipality-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.card-info h4 {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+}
+
+.card-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.pop-round {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: right;
+}
+
+.pop-exact {
+    display: block;
+    font-size: 0.8rem;
+    color: #999;
+    text-align: right;
+}
+
 .typing-container {
     display: flex;
     flex-direction: column;

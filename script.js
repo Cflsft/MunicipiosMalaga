@@ -1,16 +1,16 @@
 const DEFAULT_MUNICIPALITIES = [
-    { id: 1, name: 'Málaga', exact: '599.063', rounded: '599.000' },
-    { id: 2, name: 'Marbella', exact: '159.786', rounded: '160.000' },
-    { id: 3, name: 'Vélez-Málaga', exact: '86.048', rounded: '86.000' },
-    { id: 4, name: 'Fuengirola', exact: '85.211', rounded: '85.000' },
-    { id: 5, name: 'Estepona', exact: '79.621', rounded: '80.000' },
-    { id: 6, name: 'Benalmádena', exact: '78.338', rounded: '78.000' },
-    { id: 7, name: 'Torremolinos', exact: '71.329', rounded: '71.000' },
-    { id: 8, name: 'Rincón de la Victoria', exact: '52.454', rounded: '52.000' },
-    { id: 9, name: 'Antequera', exact: '45.066', rounded: '45.000' },
-    { id: 10, name: 'Ronda', exact: '33.671', rounded: '34.000' },
-    { id: 11, name: 'Nerja', exact: '22.132', rounded: '22.000' },
-    { id: 12, name: 'Manilva', exact: '18.165', rounded: '18.000' }
+    { id: 1, name: 'Málaga', exact: 599063, rounded: 599000 },
+    { id: 2, name: 'Marbella', exact: 159786, rounded: 160000 },
+    { id: 3, name: 'Vélez-Málaga', exact: 86048, rounded: 86000 },
+    { id: 4, name: 'Fuengirola', exact: 85211, rounded: 85000 },
+    { id: 5, name: 'Estepona', exact: 79621, rounded: 80000 },
+    { id: 6, name: 'Benalmádena', exact: 78338, rounded: 78000 },
+    { id: 7, name: 'Torremolinos', exact: 71329, rounded: 71000 },
+    { id: 8, name: 'Rincón de la Victoria', exact: 52454, rounded: 52000 },
+    { id: 9, name: 'Antequera', exact: 45066, rounded: 45000 },
+    { id: 10, name: 'Ronda', exact: 33671, rounded: 34000 },
+    { id: 11, name: 'Nerja', exact: 22132, rounded: 22000 },
+    { id: 12, name: 'Manilva', exact: 18165, rounded: 18000 }
 ];
 
 const DEFAULT_PLAYERS = [
@@ -51,9 +51,13 @@ function saveData() {
     localStorage.setItem('munis_app_data', JSON.stringify(appData));
 }
 
-function formatNumber(num) {
-    if (!num) return '0';
-    return Number(num).toLocaleString('es-ES');
+function formatNumber(val) {
+    if (!val && val !== 0) return '0';
+    // Remove dots if it comes as a string (old data in localStorage)
+    let clean = String(val).replace(/\./g, '');
+    let num = parseInt(clean, 10);
+    if (isNaN(num)) return '0';
+    return num.toLocaleString('es-ES');
 }
 
 function showScreen(screenId) {
@@ -265,10 +269,13 @@ function renderReview() {
         const card = document.createElement('div');
         card.className = 'municipality-card';
         card.innerHTML = `
-            <div class="card-info"><h4>${m.name}</h4></div>
+            <div class="card-info">
+                <h4>${m.name}</h4>
+                <p>Málaga, España</p>
+            </div>
             <div class="card-pop">
                 <span class="pop-round">${formatNumber(m.rounded)}</span>
-                <span class="pop-exact">${formatNumber(m.exact)}</span>
+                <span class="pop-exact">Exacto: ${formatNumber(m.exact)}</span>
             </div>
         `;
         list.appendChild(card);
