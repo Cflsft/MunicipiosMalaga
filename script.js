@@ -18,7 +18,13 @@ const DEFAULT_PLAYERS = [
     { id: 2, name: 'Marina', avatar: '👧', bestScore: 0, streak: 0, trophies: 0 }
 ];
 
-const GIRLY_EMOJIS = ['🦄', '👸', '🧜‍♀️', '🧚', '🌈', '🍦', '🎨', '🦋', '🌸', '💖', '🐱'];
+const EMOJI_COLLECTION = {
+    'Mágico': ['🦄', '👸', '🧜‍♀️', '🧚', '🪄', '🏰', '🐉', '🌈', '🌟', '🌙', '✨', '💖'],
+    'Animales': ['🐱', '🐶', '🐰', '🦊', '🐼', '🐨', '🦁', '🐯', '🐷', '🐸', '🐵', '🐝', '🦋', '🐢', '🐬', '🐧', '🐥', '🦉', '🦜'],
+    'Dulces': ['🍦', '🍩', '🍰', '🍭', '🍬', '🍫', '🍓', '🍒', '🍉', '🍕', '🥨', '🥤', '🍿'],
+    'Arte y Más': ['🎨', '🎭', '🎬', '🧶', '🧵', '🎧', '🎤', '🎹', '🎸', '🚲', '🛹', '🩰', '⚽', '🎾', '📸'],
+    'Varios': ['🌸', '🌻', '🍄', '🎈', '🎊', '💎', '🎀', '🧸', '🚀', '🛸', '🎁', '🔔', '🕯️']
+};
 let selectedAvatar = '👩';
 
 let appData = {
@@ -449,16 +455,27 @@ function renderAvatarPicker() {
     const container = document.getElementById('avatar-picker-grid');
     container.innerHTML = '';
     
-    GIRLY_EMOJIS.forEach(emoji => {
-        const div = document.createElement('div');
-        div.className = 'avatar-option' + (selectedAvatar === emoji ? ' selected' : '');
-        div.innerText = emoji;
-        div.onclick = () => {
-            selectedAvatar = emoji;
-            renderAvatarPicker();
-            document.getElementById('avatar-upload-preview').innerHTML = '';
-        };
-        container.appendChild(div);
+    Object.keys(EMOJI_COLLECTION).forEach(category => {
+        const title = document.createElement('p');
+        title.className = 'picker-category-title';
+        title.innerText = category;
+        container.appendChild(title);
+        
+        const grid = document.createElement('div');
+        grid.className = 'picker-subgrid';
+        
+        EMOJI_COLLECTION[category].forEach(emoji => {
+            const div = document.createElement('div');
+            div.className = 'avatar-option' + (selectedAvatar === emoji ? ' selected' : '');
+            div.innerText = emoji;
+            div.onclick = () => {
+                selectedAvatar = emoji;
+                renderAvatarPicker();
+                document.getElementById('avatar-upload-preview').innerHTML = '';
+            };
+            grid.appendChild(div);
+        });
+        container.appendChild(grid);
     });
 }
 

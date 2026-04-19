@@ -373,10 +373,30 @@ input[type="text"], input[type="number"] {
 }
 
 .avatar-picker-grid {
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(0, 119, 182, 0.03);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 119, 182, 0.1);
+    margin-bottom: 15px;
+}
+
+.picker-category-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 15px 0 8px;
+}
+
+.picker-category-title:first-child { margin-top: 0; }
+
+.picker-subgrid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 10px;
-    margin-bottom: 15px;
 }
 
 .avatar-option {
