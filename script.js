@@ -53,11 +53,17 @@ function saveData() {
 
 function formatNumber(val) {
     if (!val && val !== 0) return '0';
-    // Remove dots if it comes as a string (old data in localStorage)
+    // Remove dots if it comes as a string (old data)
     let clean = String(val).replace(/\./g, '');
     let num = parseInt(clean, 10);
     if (isNaN(num)) return '0';
     return num.toLocaleString('es-ES');
+}
+
+function isSameNumber(val1, val2) {
+    const n1 = String(val1).replace(/\./g, '');
+    const n2 = String(val2).replace(/\./g, '');
+    return parseInt(n1, 10) === parseInt(n2, 10);
 }
 
 function showScreen(screenId) {
@@ -156,7 +162,7 @@ function checkTypingAnswer() {
     btn.style.opacity = '0.5';
 
     // Compare raw numbers
-    const isCorrect = userInput == currentItem.rounded;
+    const isCorrect = isSameNumber(userInput, currentItem.rounded);
     
     if (isCorrect) {
         document.getElementById('feedback-message').innerText = '¡Perfecto! 🌟';
@@ -198,16 +204,17 @@ function checkAnswer(selected, correct, btn) {
     const buttons = document.querySelectorAll('.option-btn');
     buttons.forEach(b => b.style.pointerEvents = 'none');
 
-    if (selected === correct) {
+    if (isSameNumber(selected, correct)) {
         btn.classList.add('correct');
         document.getElementById('feedback-message').innerText = '¡Fabuloso! ✨';
         testScore++;
         updateScoreDisplay();
     } else {
         btn.classList.add('wrong');
-        document.getElementById('feedback-message').innerText = `¡Oh! Era ${formatNumber(correct)}`;
+        const correctFormatted = formatNumber(correct);
+        document.getElementById('feedback-message').innerText = `¡Oh! Era ${correctFormatted}`;
         buttons.forEach(b => { 
-            if (b.innerText === formatNumber(correct)) b.classList.add('correct'); 
+            if (isSameNumber(b.innerText, correct)) b.classList.add('correct'); 
         });
     }
 
