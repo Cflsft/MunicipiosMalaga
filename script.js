@@ -42,22 +42,65 @@ let shuffledList = [];
 
 // --- CORE LOGIC ---
 
-function init() {
-    const savedData = localStorage.getItem('munis_app_data');
-    if (savedData) {
-        appData = JSON.parse(savedData);
+async function init() {
+    // 1. Intentar cargar del servidor (Prioridad)
+    const serverData = await loadFromServer();
+    
+    if (serverData) {
+        appData = serverData;
+        console.log('Datos cargados del servidor');
     } else {
-        appData.players = [...DEFAULT_PLAYERS];
-        appData.municipalities = [...DEFAULT_MUNICIPALITIES];
-        saveData();
+        // 2. Si falla el servidor, intentar localStorage
+        const savedData = localStorage.getItem('munis_app_data');
+        if (savedData) {
+            appData = JSON.parse(savedData);
+            console.log('Datos cargados de LocalStorage');
+        } else {
+            // 3. Si no hay nada, cargar por defecto
+            appData.players = [...DEFAULT_PLAYERS];
+            appData.municipalities = [...DEFAULT_MUNICIPALITIES];
+            saveData();
+        }
     }
     
     renderPlayerSelection();
     setupEventListeners();
 }
 
-function saveData() {
+async function saveData() {
+    // Guardar siempre en LocalStorage (backup local rápido)
     localStorage.setItem('munis_app_data', JSON.stringify(appData));
+    
+    // Intentar guardar en el servidor
+    await saveToServer(appData);
+}
+
+async function loadFromServer() {
+    try {
+        const response = await fetch('api.php');
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (err) {
+        console.warn('Servidor no disponible, usando modo local.');
+        return null;
+    }
+}
+
+async function saveToServer(data) {
+    try {
+        const response = await fetch('api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (response.ok) {
+            console.log('Sincronizado con servidor');
+        } else {
+            console.error('Error al guardar en servidor');
+        }
+    } catch (err) {
+        console.warn('Error de conexión al guardar en servidor.');
+    }
 }
 
 function formatNumber(val) {
