@@ -16,24 +16,107 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Player Login Screen -->
+        <section id="screen-login" class="screen active">
+            <header>
+                <h1>¿Quién va a jugar?</h1>
+                <p class="subtitle">Selecciona tu perfil de exploradora</p>
+            </header>
+            <div class="player-selection" id="player-buttons">
+                <!-- Player buttons (Elena, Marina) will be injected here -->
+            </div>
+            <button id="btn-manage-players" class="btn btn-outline" style="margin-top: 20px; font-size: 0.9rem; padding: 10px;">
+                ⚙️ Ajustes / Perfiles
+            </button>
+        </section>
+
         <!-- Home Screen -->
-        <section id="screen-home" class="screen active">
+        <section id="screen-home" class="screen">
+            <nav class="top-nav">
+                <button class="btn-back" onclick="showScreen('login')">← Cambiar Jugador</button>
+                <div class="player-name-badge">Hola, <span id="current-player-name"></span>!</div>
+            </nav>
             <header>
                 <h1>Municipios de Málaga</h1>
-                <p class="subtitle">¡Aprende la población de tu provincia jugandolo!</p>
+                <p class="subtitle">¡Aprende la población de tu provincia!</p>
             </header>
             <div class="main-actions">
                 <button id="btn-go-review" class="btn btn-primary">
                     <span class="icon">📚</span>
                     <span class="text">Repasar Datos</span>
                 </button>
-                <button id="btn-go-test" class="btn btn-secondary">
-                    <span class="icon">✍️</span>
-                    <span class="text">Hacer Test</span>
+                <div class="test-buttons-row">
+                    <button id="btn-go-test-options" class="btn btn-secondary">
+                        <span class="icon">🔘</span>
+                        <span class="text">Test Opciones</span>
+                    </button>
+                    <button id="btn-go-test-typing" class="btn btn-secondary">
+                        <span class="icon">⌨️</span>
+                        <span class="text">Test Escribir</span>
+                    </button>
+                </div>
+                <button id="btn-go-stats" class="btn btn-tertiary">
+                    <span class="icon">🏆</span>
+                    <span class="text">Mis Trofeos</span>
                 </button>
             </div>
-            <div class="footer-info">
-                <p>Datos según previsión 2025</p>
+        </section>
+
+        <!-- Stats Screen -->
+        <section id="screen-stats" class="screen">
+            <nav class="top-nav">
+                <button class="btn-back" onclick="showScreen('home')">← Volver</button>
+                <h2>Mis Estadísticas</h2>
+            </nav>
+            <div class="stats-container">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <span class="stat-label">Mejor Puntuación</span>
+                        <span class="stat-value" id="stat-best-score">0/12</span>
+                    </div>
+                </div>
+                <h3>Mis Trofeos</h3>
+                <div class="trophies-grid" id="trophies-list">
+                    <!-- Trophies injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Screen -->
+        <section id="screen-settings" class="screen">
+            <nav class="top-nav">
+                <button class="btn-back" onclick="showScreen('login')">← Volver</button>
+                <h2>Ajustes</h2>
+            </nav>
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="tab-players">Jugadores</button>
+                <button class="tab-btn" data-tab="tab-data">Municipios</button>
+            </div>
+            
+            <div id="tab-players" class="tab-content active">
+                <div class="add-section">
+                    <input type="text" id="new-player-name" placeholder="Nuevo jugador...">
+                    <button class="btn btn-primary" id="btn-add-player">+</button>
+                </div>
+                <div class="items-list" id="settings-players-list">
+                    <!-- Players list injected here -->
+                </div>
+            </div>
+
+            <div id="tab-data" class="tab-content">
+                <div class="form-container">
+                    <input type="hidden" id="edit-muni-id">
+                    <input type="text" id="muni-name" placeholder="Nombre (ej: Málaga)">
+                    <div class="num-inputs">
+                        <input type="number" id="muni-exact" placeholder="Población Exacta">
+                        <input type="number" id="muni-rounded" placeholder="Población Redondeada">
+                    </div>
+                    <button class="btn btn-primary" id="btn-save-muni">Guardar Municipio</button>
+                    <button class="btn btn-outline" id="btn-reset-data" style="margin-top: 20px;">Restablecer Originales</button>
+                </div>
+                <div class="items-list" id="settings-data-list">
+                    <!-- Municipality list injected here -->
+                </div>
             </div>
         </section>
 
@@ -41,11 +124,9 @@
         <section id="screen-review" class="screen">
             <nav class="top-nav">
                 <button class="btn-back" onclick="showScreen('home')">← Volver</button>
-                <h2>Repaso de Población</h2>
+                <h2>Repaso</h2>
             </nav>
-            <div class="review-grid" id="review-list">
-                <!-- Cards will be injected here -->
-            </div>
+            <div class="review-grid" id="review-list"></div>
         </section>
 
         <!-- Test Screen -->
@@ -57,16 +138,21 @@
                 </div>
                 <div class="score-badge">Puntos: <span id="current-score">0</span></div>
             </nav>
-            
             <div class="question-container">
                 <h3 id="question-text">¿Cuál es la población redondeada de...?</h3>
                 <div class="municipality-focus" id="focus-name">Málaga</div>
                 
-                <div class="options-grid" id="options-container">
-                    <!-- Options buttons injected here -->
+                <div id="test-options-ui">
+                    <div class="options-grid" id="options-container"></div>
+                </div>
+
+                <div id="test-typing-ui" style="display: none;">
+                    <div class="typing-container">
+                        <input type="number" id="typing-input" placeholder="000000" inputmode="numeric">
+                        <button class="btn btn-primary" id="btn-check-typing">Comprobar</button>
+                    </div>
                 </div>
             </div>
-            
             <div id="feedback-message" class="feedback"></div>
         </section>
 
