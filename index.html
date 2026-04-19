@@ -34,7 +34,10 @@
         <section id="screen-home" class="screen">
             <nav class="top-nav">
                 <button class="btn-back" onclick="showScreen('login')">← Cambiar Jugador</button>
-                <div class="player-name-badge">Hola, <span id="current-player-name"></span>!</div>
+                <div class="player-name-badge">
+                    <span id="current-player-avatar" class="nav-avatar"></span>
+                    Hola, <span id="current-player-name"></span>!
+                </div>
             </nav>
             <header>
                 <h1>Municipios de Málaga</h1>
@@ -70,6 +73,7 @@
             </nav>
             <div class="stats-container">
                 <div class="stats-card">
+                    <div id="stat-player-identity" class="stat-player-identity"></div>
                     <div class="stat-item">
                         <span class="stat-label">Mejor Puntuación</span>
                         <span class="stat-value" id="stat-best-score">0/12</span>
@@ -94,8 +98,31 @@
             </div>
             
             <div id="tab-players" class="tab-content active">
-                <div class="add-section">
-                    <input type="text" id="new-player-name" placeholder="Nuevo jugador...">
+                <div class="form-container" id="player-edit-form" style="display: none;">
+                    <input type="hidden" id="edit-player-id">
+                    <input type="text" id="edit-player-name" placeholder="Nombre de la exploradora">
+                    <div class="avatar-selection-container">
+                        <p class="label">Elige tu icono:</p>
+                        <div class="avatar-picker-grid" id="avatar-picker-grid">
+                            <!-- Emojis injected here -->
+                        </div>
+                        <div class="avatar-upload-section">
+                            <p class="label">O sube tu propia foto:</p>
+                            <label for="avatar-upload-input" class="btn btn-outline" style="font-size: 0.9rem;">
+                                📷 Seleccionar Foto
+                            </label>
+                            <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;">
+                            <div id="avatar-upload-preview" class="avatar-preview-small"></div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="btn-save-player">Guardar Perfil</button>
+                        <button class="btn btn-outline" onclick="cancelPlayerEdit()">Cancelar</button>
+                    </div>
+                </div>
+
+                <div class="add-section" id="player-add-section">
+                    <input type="text" id="new-player-name" placeholder="Nueva jugadora...">
                     <button class="btn btn-primary" id="btn-add-player">+</button>
                 </div>
                 <div class="items-list" id="settings-players-list">
@@ -148,7 +175,7 @@
 
                 <div id="test-typing-ui" style="display: none;">
                     <div class="typing-container">
-                        <input type="number" id="typing-input" placeholder="000000" inputmode="numeric">
+                        <input type="text" id="typing-input" placeholder="Ej: 12.000" inputmode="numeric">
                         <button class="btn btn-primary" id="btn-check-typing">Comprobar</button>
                     </div>
                 </div>
@@ -163,6 +190,7 @@
                 <h2 id="results-title">¡Increíble!</h2>
                 <p id="results-summary">Has acertado todas las preguntas.</p>
                 <div class="final-score" id="final-score-display">12/12</div>
+                <div id="achievement-badge"></div>
                 <button class="btn btn-primary" onclick="showScreen('home')">Volver al inicio</button>
             </div>
         </section>

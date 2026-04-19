@@ -18,6 +18,9 @@ const DEFAULT_PLAYERS = [
     { id: 2, name: 'Marina', avatar: '👧', bestScore: 0, streak: 0, trophies: 0 }
 ];
 
+const GIRLY_EMOJIS = ['🦄', '👸', '🧜‍♀️', '🧚', '🌈', '🍦', '🎨', '🦋', '🌸', '💖', '🐱'];
+let selectedAvatar = '👩';
+
 let appData = {
     players: [],
     municipalities: [],
@@ -61,8 +64,9 @@ function formatNumber(val) {
 }
 
 function isSameNumber(val1, val2) {
-    const n1 = String(val1).replace(/\./g, '');
-    const n2 = String(val2).replace(/\./g, '');
+    const n1 = String(val1).replace(/\D/g, '');
+    const n2 = String(val2).replace(/\D/g, '');
+    if (!n1 || !n2) return false;
     return parseInt(n1, 10) === parseInt(n2, 10);
 }
 
@@ -85,9 +89,18 @@ function renderPlayerSelection() {
     appData.players.forEach(player => {
         const btn = document.createElement('div');
         btn.className = 'player-btn';
+        
+        // Handle image vs emoji avatar
+        const avatarHtml = player.avatar.length > 5 
+            ? `<img src="${player.avatar}" class="avatar-img">` 
+            : `<span class="player-avatar">${player.avatar}</span>`;
+
         btn.innerHTML = `
-            <span class="player-avatar">${player.avatar}</span>
+            ${avatarHtml}
             <span class="player-name">${player.name}</span>
+            <div class="player-stats-mini">
+                <span class="stat-icon">🏆</span> ${player.trophies || 0}
+            </div>
         `;
         btn.onclick = () => selectPlayer(player);
         container.appendChild(btn);
@@ -97,6 +110,12 @@ function renderPlayerSelection() {
 function selectPlayer(player) {
     currentPlayer = player;
     document.getElementById('current-player-name').innerText = player.name;
+    const avatarBadge = document.getElementById('current-player-avatar');
+    if (avatarBadge) {
+        avatarBadge.innerHTML = player.avatar.length > 5 
+            ? `<img src="${player.avatar}" class="avatar-img-tiny">` 
+            : player.avatar;
+    }
     showScreen('home');
 }
 
@@ -231,37 +250,74 @@ function updateScoreDisplay() {
 function finishTest() {
     document.getElementById('test-progress').style.width = '100%';
     const total = appData.municipalities.length;
-    
-    // Update player stats
     const pIndex = appData.players.findIndex(p => p.id === currentPlayer.id);
-    if (testScore > appData.players[pIndex].bestScore) {
-        appData.players[pIndex].bestScore = testScore;
+    const player = appData.players[pIndex];
+    
+    let isNewRecord = false;
+    let earnedTrophy = false;
+
+    // Update player stats
+    if (testScore > player.bestScore) {
+        player.bestScore = testScore;
+        isNewRecord = true;
     }
     
     if (testScore === total) {
-        appData.players[pIndex].streak++;
-        if (appData.players[pIndex].streak % 3 === 0) {
-            appData.players[pIndex].trophies++;
-            confetti({ particleCount: 200, spread: 80, origin: { y: 0.5 }, colors: ['#ffd700', '#ffb703'] });
+        player.streak++;
+        // Easier trophy logic: 
+        // 1st trophy for 1st perfect round.
+        // Then every 2 perfect rounds (consecutive or not? let's stick to streak to reward consistency but make it easier)
+        // Actually, let's make it more rewarding: every 2 perfect rounds total.
+        if (player.trophies === 0) {
+            player.trophies = 1;
+            earnedTrophy = true;
+        } else if (player.streak % 2 === 0) {
+            player.trophies++;
+            earnedTrophy = true;
+        }
+        
+        if (earnedTrophy) {
+            confetti({ particleCount: 200, spread: 80, origin: { y: 0.5 }, colors: ['#ffd700', '#ffb703', '#ffffff'] });
         } else {
             confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
         }
     } else {
-        appData.players[pIndex].streak = 0;
+        player.streak = 0;
     }
     
     saveData();
     
     // Final UI
     document.getElementById('final-score-display').innerText = `${testScore}/${total}`;
+    const badge = document.getElementById('achievement-badge');
+    badge.innerHTML = '';
+
+    if (isNewRecord && testScore > 0) {
+        const b = document.createElement('div');
+        b.className = 'record-badge';
+        b.innerText = '⭐ ¡NUEVO RÉCORD! ⭐';
+        badge.appendChild(b);
+    }
+    
+    if (earnedTrophy) {
+        const b = document.createElement('div');
+        b.className = 'trophy-badge';
+        b.innerText = '🏆 ¡HAS GANADO UN TROFEO! 🏆';
+        badge.appendChild(b);
+    }
+
     if (testScore === total) {
         document.getElementById('results-emoji').innerText = '🏆';
         document.getElementById('results-title').innerText = '¡Perfecto!';
-        document.getElementById('results-summary').innerText = '¡Eres una experta en Málaga!';
+        document.getElementById('results-summary').innerText = '¡Eres una verdadera experta en Málaga!';
+    } else if (testScore > total * 0.7) {
+        document.getElementById('results-emoji').innerText = '🌟';
+        document.getElementById('results-title').innerText = '¡Casi perfecto!';
+        document.getElementById('results-summary').innerText = '¡Lo has hecho fenomenal!';
     } else {
         document.getElementById('results-emoji').innerText = '👏';
-        document.getElementById('results-title').innerText = '¡Muy bien!';
-        document.getElementById('results-summary').innerText = '¡Sigue así, vas genial!';
+        document.getElementById('results-title').innerText = '¡Buen intento!';
+        document.getElementById('results-summary').innerText = '¡Sigue practicando para ganar trofeos!';
     }
     
     showScreen('results');
@@ -293,10 +349,18 @@ function renderStats() {
     const p = appData.players.find(pl => pl.id === currentPlayer.id);
     document.getElementById('stat-best-score').innerText = `${p.bestScore}/${appData.municipalities.length}`;
     
+    // Update player identity in stats
+    const avatarHtml = p.avatar.length > 5 
+        ? `<img src="${p.avatar}" class="avatar-img-medium">` 
+        : p.avatar;
+    document.getElementById('stat-player-identity').innerHTML = `${avatarHtml} <span>${p.name}</span>`;
+
     const trophyList = document.getElementById('trophies-list');
     trophyList.innerHTML = '';
     
-    for (let i = 0; i < 5; i++) {
+    // Render all current trophies + next 2 to achieve
+    const totalToShow = Math.max(5, p.trophies + 2);
+    for (let i = 0; i < totalToShow; i++) {
         const item = document.createElement('div');
         item.className = 'trophy-item' + (i < p.trophies ? ' unlocked' : '');
         item.innerHTML = `<span class="trophy-emoji">🏆</span><p>${i + 1}</p>`;
@@ -313,7 +377,16 @@ function renderSettings() {
     appData.players.forEach(p => {
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.innerHTML = `<span>${p.avatar} ${p.name}</span><button onclick="deletePlayer(${p.id})">🗑️</button>`;
+        const avatarHtml = p.avatar.length > 5 
+            ? `<img src="${p.avatar}" class="avatar-img-mini">` 
+            : p.avatar;
+        div.innerHTML = `
+            <span>${avatarHtml} ${p.name} (🏆 ${p.trophies || 0})</span>
+            <div class="actions">
+                <button onclick="editPlayer(${p.id})">✏️</button>
+                <button onclick="deletePlayer(${p.id})">🗑️</button>
+            </div>
+        `;
         pList.appendChild(div);
     });
     
@@ -332,6 +405,106 @@ function renderSettings() {
         `;
         dList.appendChild(div);
     });
+}
+
+function editPlayer(id) {
+    const p = appData.players.find(p => p.id === id);
+    document.getElementById('edit-player-id').value = p.id;
+    document.getElementById('edit-player-name').value = p.name;
+    selectedAvatar = p.avatar;
+    
+    document.getElementById('player-edit-form').style.display = 'block';
+    document.getElementById('player-add-section').style.display = 'none';
+    
+    renderAvatarPicker();
+}
+
+function cancelPlayerEdit() {
+    document.getElementById('player-edit-form').style.display = 'none';
+    document.getElementById('player-add-section').style.display = 'flex';
+}
+
+function savePlayer() {
+    const id = document.getElementById('edit-player-id').value;
+    const name = document.getElementById('edit-player-name').value;
+    
+    if (!name) return alert('Por favor, escribe un nombre.');
+
+    const pIndex = appData.players.findIndex(p => p.id == id);
+    appData.players[pIndex].name = name;
+    appData.players[pIndex].avatar = selectedAvatar;
+
+    saveData();
+    cancelPlayerEdit();
+    renderSettings();
+    renderPlayerSelection();
+    
+    // Update top nav if currently selected
+    if (currentPlayer && currentPlayer.id == id) {
+        selectPlayer(appData.players[pIndex]);
+    }
+}
+
+function renderAvatarPicker() {
+    const container = document.getElementById('avatar-picker-grid');
+    container.innerHTML = '';
+    
+    GIRLY_EMOJIS.forEach(emoji => {
+        const div = document.createElement('div');
+        div.className = 'avatar-option' + (selectedAvatar === emoji ? ' selected' : '');
+        div.innerText = emoji;
+        div.onclick = () => {
+            selectedAvatar = emoji;
+            renderAvatarPicker();
+            document.getElementById('avatar-upload-preview').innerHTML = '';
+        };
+        container.appendChild(div);
+    });
+}
+
+function handleAvatarUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize image using canvas to stay under localStorage limits
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 120;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width;
+                    width = MAX_SIZE;
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height;
+                    height = MAX_SIZE;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            selectedAvatar = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Preview
+            const preview = document.getElementById('avatar-upload-preview');
+            preview.innerHTML = `<img src="${selectedAvatar}" class="avatar-img-preview">`;
+            
+            // Clear emoji selection
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function saveMuni() {
@@ -402,10 +575,14 @@ function setupEventListeners() {
     
     document.getElementById('btn-save-muni').onclick = () => saveMuni();
     
+    document.getElementById('btn-save-player').onclick = () => savePlayer();
+    document.getElementById('avatar-upload-input').onchange = (e) => handleAvatarUpload(e);
+    
     document.getElementById('btn-add-player').onclick = () => {
         const name = document.getElementById('new-player-name').value;
         if (!name) return;
-        const newP = { id: Date.now(), name, avatar: '👤', bestScore: 0, streak: 0, trophies: 0 };
+        // Default avatar for new players
+        const newP = { id: Date.now(), name, avatar: '👩', bestScore: 0, streak: 0, trophies: 0 };
         appData.players.push(newP);
         document.getElementById('new-player-name').value = '';
         saveData();
