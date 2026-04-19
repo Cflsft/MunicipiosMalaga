@@ -201,7 +201,23 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered!', reg))
+                    .then(reg => {
+                        console.log('SW Registered!', reg);
+                        
+                        // Detectar actualizaciones
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // Nueva versión detectada, recargar automáticamente o avisar
+                                        console.log('Nueva versión detectada. Recargando...');
+                                        window.location.reload();
+                                    }
+                                }
+                            };
+                        };
+                    })
                     .catch(err => console.log('SW Error', err));
             });
         }

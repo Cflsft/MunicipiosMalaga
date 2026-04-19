@@ -1,4 +1,4 @@
-const CACHE_NAME = 'municipios-malaga-v1';
+const CACHE_NAME = 'municipios-malaga-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
 
 // Install Event
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('Caching assets...');
@@ -41,3 +42,4 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
