@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipios de Málaga - Población 2025</title>
+    <meta name="description" content="Aprende la población de los municipios de Málaga de forma divertida.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0077b6">
+    <link rel="apple-touch-icon" href="icon.png">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Home Screen -->
+        <section id="screen-home" class="screen active">
+            <header>
+                <h1>Municipios de Málaga</h1>
+                <p class="subtitle">¡Aprende la población de tu provincia jugandolo!</p>
+            </header>
+            <div class="main-actions">
+                <button id="btn-go-review" class="btn btn-primary">
+                    <span class="icon">📚</span>
+                    <span class="text">Repasar Datos</span>
+                </button>
+                <button id="btn-go-test" class="btn btn-secondary">
+                    <span class="icon">✍️</span>
+                    <span class="text">Hacer Test</span>
+                </button>
+            </div>
+            <div class="footer-info">
+                <p>Datos según previsión 2025</p>
+            </div>
+        </section>
+
+        <!-- Review Screen -->
+        <section id="screen-review" class="screen">
+            <nav class="top-nav">
+                <button class="btn-back" onclick="showScreen('home')">← Volver</button>
+                <h2>Repaso de Población</h2>
+            </nav>
+            <div class="review-grid" id="review-list">
+                <!-- Cards will be injected here -->
+            </div>
+        </section>
+
+        <!-- Test Screen -->
+        <section id="screen-test" class="screen">
+            <nav class="top-nav">
+                <button class="btn-back" onclick="showScreen('home')">← Salir</button>
+                <div class="progress-bar-container">
+                    <div id="test-progress" class="progress-bar"></div>
+                </div>
+                <div class="score-badge">Puntos: <span id="current-score">0</span></div>
+            </nav>
+            
+            <div class="question-container">
+                <h3 id="question-text">¿Cuál es la población redondeada de...?</h3>
+                <div class="municipality-focus" id="focus-name">Málaga</div>
+                
+                <div class="options-grid" id="options-container">
+                    <!-- Options buttons injected here -->
+                </div>
+            </div>
+            
+            <div id="feedback-message" class="feedback"></div>
+        </section>
+
+        <!-- Results Screen -->
+        <section id="screen-results" class="screen">
+            <div class="results-card">
+                <div class="results-icon" id="results-emoji">🎉</div>
+                <h2 id="results-title">¡Increíble!</h2>
+                <p id="results-summary">Has acertado todas las preguntas.</p>
+                <div class="final-score" id="final-score-display">12/12</div>
+                <button class="btn btn-primary" onclick="showScreen('home')">Volver al inicio</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered!', reg))
+                    .catch(err => console.log('SW Error', err));
+            });
+        }
+    </script>
+</body>
+</html>
